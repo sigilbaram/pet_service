@@ -1,0 +1,10 @@
+<package>
+    <name>pet_service</name>
+    <version>1.0</version>
+    <type>service</type>
+    <dependencies>
+        <dependency>packets</dependency>
+        <dependency>shared</dependency>
+        <dependency>structs</dependency>
+    </dependencies>
+</package>
