@@ -21,6 +21,14 @@ local data = server.new(structs.struct({
 }))
 
 packets.incoming:register_init({
+    [{0x037}] = function(p) -- While this packet is mostly player data, it does occassionally update the pet index when no other pet related packet is sent. For example, when moving into zones where the pet is supressed, such as cities and towns, this packet will set the pet index to 0.
+        data.index = p.pet_index
+        if p.pet_index and p.pet_index ~= 0 then
+            data.active = true
+        else
+            data.active = false
+        end
+    end,
     [{0x067}] = function(p)
         if p.type == 4 then
             data.index = p.pet_index
@@ -29,6 +37,11 @@ packets.incoming:register_init({
             data.hp_percent = p.current_hp_percent
             data.mp_percent = p.current_mp_percent
             data.tp = p.pet_tp
+            if p.pet_index and p.pet_index ~= 0 then
+                data.active = true
+            else
+                data.active = false
+            end
         end
     end,
     [{0x068}] = function(p)
@@ -41,6 +54,11 @@ packets.incoming:register_init({
             data.tp = p.pet_tp
             data.target_id = p.target_id
             data.name = p.pet_name
+            if p.pet_index and p.pet_index ~= 0 then
+                data.active = true
+            else
+                data.active = false
+            end
         end
     end,
     [{0x044,0x12}] = function(p)
