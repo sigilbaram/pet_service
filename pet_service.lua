@@ -55,7 +55,7 @@ packets.incoming:register_init({
         if p.mp_max ~= 0 then
             data.mp = p.mp
             data.mp_max = p.mp_max
-            data.hp_percent = math.floor(100 * p.mp / p.mp_max)
+            data.mp_percent = math.floor(100 * p.mp / p.mp_max)
         end
     end
 })
