@@ -1,10 +1,8 @@
-local jit = require('jit')
-jit.off()
-
+local math = require('math')
 local packets = require('packets')
 local server = require('shared.server')
+local string = require('string')
 local structs = require('structs')
-local math = require('math')
 
 local data = server.new(structs.struct({
     index           = {structs.uint16},
@@ -21,9 +19,9 @@ local data = server.new(structs.struct({
         head                = {structs.uint16},
         frame               = {structs.uint16},
         attachments         = {structs.uint16[0x0C]},
-        available_heads     = {structs.data(4)},
-        available_frames    = {structs.data(4)},
-        available_attach    = {structs.data(32)},
+        available_heads     = {structs.bool[32]},
+        available_frames    = {structs.bool[32]},
+        available_attach    = {structs.bool[256]},
         name                = {structs.string(0x10)},
         hp                  = {structs.uint16},
         hp_max              = {structs.uint16},
@@ -96,10 +94,18 @@ packets.incoming:register_init({
     [{0x044,0x12}] = function(p)
         data.automaton.head             = p.automaton_head
         data.automaton.frame            = p.automaton_frame
-        data.automaton.attachments      = p.attachments
-        data.automaton.available_heads  = p.available_heads
-        data.automaton.available_frames = p.available_frames
-        data.automaton.available_attach = p.available_attach
+        for i=0,11 do
+            data.automaton.attachments[i] = p.attachments[i]
+        end
+        for i=0,3 do
+            data.automaton.available_heads[i]  = p.available_heads:byte(i+1)
+        end
+        for i=0,3 do
+            data.automaton.available_frames[i] = p.available_bodies:byte(i+1)
+        end
+        for i=0,31 do
+            data.automaton.available_attach[i] = p.available_attach:byte(i+1)
+        end
         data.automaton.hp               = p.hp
         data.automaton.hp_max           = p.hp_max
         data.automaton.mp               = p.mp
