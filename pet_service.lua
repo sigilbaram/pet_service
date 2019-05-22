@@ -19,9 +19,9 @@ local data = server.new(structs.struct({
         head                = {structs.uint16},
         frame               = {structs.uint16},
         attachments         = {structs.uint16[0x0C]},
-        available_heads     = {structs.bool[32]},
-        available_frames    = {structs.bool[32]},
-        available_attach    = {structs.bool[256]},
+        available_heads     = {structs.uint16[4]},
+        available_frames    = {structs.uint16[4]},
+        available_attach    = {structs.uint16[32]},
         name                = {structs.string(0x10)},
         hp                  = {structs.uint16},
         hp_max              = {structs.uint16},
@@ -64,8 +64,8 @@ packets.incoming:register_init({
             data.index = p.pet_index
             data.id = p.pet_id
             data.owner_index = p.owner_index
-            data.hp_percent = p.current_hp_percent
-            data.mp_percent = p.current_mp_percent
+            data.hp_percent = p.hp_percent
+            data.mp_percent = p.mp_percent
             data.tp = p.pet_tp
             if p.pet_index and p.pet_index ~= 0 then
                 data.active = true
@@ -79,8 +79,8 @@ packets.incoming:register_init({
             data.owner_index = p.owner_index
             data.owner_id = p.owner_id
             data.index = p.pet_index
-            data.hp_percent = p.current_hp_percent
-            data.mp_percent = p.current_mp_percent
+            data.hp_percent = p.hp_percent
+            data.mp_percent = p.mp_percent
             data.tp = p.pet_tp
             data.target_id = p.target_id
             data.name = p.pet_name
@@ -101,11 +101,12 @@ packets.incoming:register_init({
             data.automaton.available_heads[i]  = p.available_heads:byte(i+1)
         end
         for i=0,3 do
-            data.automaton.available_frames[i] = p.available_bodies:byte(i+1)
+            data.automaton.available_frames[i] = p.available_frames:byte(i+1)
         end
         for i=0,31 do
             data.automaton.available_attach[i] = p.available_attach:byte(i+1)
         end
+        data.automaton.name             = p.pet_name
         data.automaton.hp               = p.hp
         data.automaton.hp_max           = p.hp_max
         data.automaton.mp               = p.mp
@@ -131,13 +132,11 @@ packets.incoming:register_init({
         data.automaton.chr              = p.chr
         data.automaton.chr_max          = p.chr_max
 
-        if p.pet_name and p.pet_name ~= '' then
-            data.name = p.pet_name
-        end
-        if p.hp_max ~= 0 then
+        local automaton_active = (data.name == data.automaton.name)
+        if p.hp_max ~= 0 and automaton_active then
             data.hp_percent = math.floor(100 * p.hp / p.hp_max)
         end
-        if p.mp_max ~= 0 then
+        if p.mp_max ~= 0 and automaton_active then
             data.mp_percent = math.floor(100 * p.mp / p.mp_max)
         end
     end
