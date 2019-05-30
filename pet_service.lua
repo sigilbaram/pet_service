@@ -10,15 +10,15 @@ local data = server.new(structs.struct({
     name            = {structs.string(0x10)},
     owner_index     = {structs.uint16},
     owner_id        = {structs.uint32},
-    hp_percent      = {structs.uint16},
-    mp_percent      = {structs.uint16},
-    tp              = {structs.uint32},
     target_id       = {structs.uint32},
+    hp_percent      = {structs.uint8},
+    mp_percent      = {structs.uint8},
+    tp              = {structs.uint32},
     active          = {structs.bool},
     automaton       = {structs.struct({
-        head                = {structs.uint16},
-        frame               = {structs.uint16},
-        attachments         = {structs.uint16[0x0C]},
+        head                = {structs.uint8},
+        frame               = {structs.uint8},
+        attachments         = {structs.uint8[0x0C]},
         available_heads     = {structs.uint16[4]},
         available_frames    = {structs.uint16[4]},
         available_attach    = {structs.uint16[32]},
@@ -94,16 +94,16 @@ packets.incoming:register_init({
     [{0x044,0x12}] = function(p)
         data.automaton.head             = p.automaton_head
         data.automaton.frame            = p.automaton_frame
-        for i=0,11 do
+        for i=0, 11 do
             data.automaton.attachments[i] = p.attachments[i]
         end
-        for i=0,3 do
+        for i=0, 3 do
             data.automaton.available_heads[i]  = p.available_heads:byte(i+1)
         end
-        for i=0,3 do
+        for i=0, 3 do
             data.automaton.available_frames[i] = p.available_frames:byte(i+1)
         end
-        for i=0,31 do
+        for i=0, 31 do
             data.automaton.available_attach[i] = p.available_attach:byte(i+1)
         end
         data.automaton.name             = p.pet_name
