@@ -4,6 +4,10 @@ local server = require('shared.server')
 local string = require('string')
 local struct = require('struct')
 
+local item_type = struct.struct({
+    item_id             = {struct.uint16},
+})
+
 local data = server.new(struct.struct({
     index           = {struct.uint16},
     id              = {struct.uint32},
@@ -16,9 +20,9 @@ local data = server.new(struct.struct({
     tp              = {struct.uint32},
     active          = {struct.bool},
     automaton       = {struct.struct({
-        head                = {struct.uint8},
-        frame               = {struct.uint8},
-        attachments         = {struct.uint8[0x0C]},
+        head                = {item_type},
+        frame               = {item_type},
+        attachments         = {item_type[12]},
         available_heads     = {struct.bits(4)},
         available_frames    = {struct.bits(4)},
         available_attach    = {struct.bits(32)},
@@ -46,7 +50,7 @@ local data = server.new(struct.struct({
         mnd                 = {struct.uint16},
         mnd_modifier        = {struct.uint16},
         chr                 = {struct.uint16},
-        chr_modifier        = {struct.uint16}
+        chr_modifier        = {struct.uint16},
     })}
 }))
 
@@ -92,13 +96,13 @@ packets.incoming:register_init({
         end
     end,
     [{0x044,0x12}] = function(p)
-        data.automaton.head             = p.automaton_head
-        data.automaton.frame            = p.automaton_frame
+        data.automaton.head.item_id     = p.automaton_head + 0x2000
+        data.automaton.frame.item_id    = p.automaton_frame + 0x2000
         for i=0, 11 do
-            data.automaton.attachments[i] = p.attachments[i]
+            data.automaton.attachments[i].item_id = p.attachments[i] + 0x2100
         end
         for i=0, 31 do
-            data.automaton.available_heads[i]  = p.available_heads[i]
+            data.automaton.available_heads[i] = p.available_heads[i]
         end
         for i=0, 31 do
             data.automaton.available_frames[i] = p.available_frames[i]
