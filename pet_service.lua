@@ -5,7 +5,8 @@ local string = require('string')
 local struct = require('struct')
 
 local item_type = struct.struct({
-    item_id             = {struct.uint16},
+    item_id = {struct.uint16},
+    raw     = {struct.uint8},
 })
 
 local data = server.new(struct.struct({
@@ -96,9 +97,12 @@ packets.incoming:register_init({
         end
     end,
     [{0x044,0x12}] = function(p)
+        data.automaton.head.raw         = p.automaton_head
         data.automaton.head.item_id     = p.automaton_head + 0x2000
+        data.automaton.frame.raw        = p.automaton_frame
         data.automaton.frame.item_id    = p.automaton_frame + 0x2000
         for i=0, 11 do
+            data.automaton.attachments[i].raw = p.attachments[i]
             data.automaton.attachments[i].item_id = p.attachments[i] + 0x2100
         end
         for i=0, 31 do
