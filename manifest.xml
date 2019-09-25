@@ -5,6 +5,6 @@
     <dependencies>
         <dependency>packets</dependency>
         <dependency>shared</dependency>
-        <dependency>structs</dependency>
+        <dependency>struct</dependency>
     </dependencies>
 </package>
